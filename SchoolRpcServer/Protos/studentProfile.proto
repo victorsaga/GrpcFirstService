@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option csharp_namespace = "SchoolRpc"; 
+
+package studentProfile;
+
+service StudentProfile{
+	rpc GetStudent (StudentRequest) returns (Student) ;
+	rpc GetMultiStudent (stream StudentRequest) returns (stream Student);	
+	rpc GetMultiStudentCoreUtils (stream StudentRequest) returns (stream Student);	
+}
+
+message Student{
+	int32 id=1;
+	string name=2;
+	Gender gender=3;
+	string responseTime=4;
+}
+
+message StudentRequest 	{
+	int32 id=1;
+	string name=2;
+	Gender gender=3;
+}
+
+enum Gender{
+	ALL=0;
+	MALE=1;
+	FEMALE=2;
+}
