@@ -6,8 +6,10 @@ package studentProfile;
 
 service StudentProfile{
 	rpc GetStudent (StudentRequest) returns (Student) ;
-	rpc GetMultiStudent (stream StudentRequest) returns (stream Student);	
-	rpc GetMultiStudentCoreUtils (stream StudentRequest) returns (stream Student);	
+	rpc GetStudentList (stream StudentRequest) returns (stream Student);	
+	rpc GetStudentListExtention (stream StudentRequest) returns (stream Student);	
+
+	rpc GetStudentReturnBaseResponse (StudentRequest) returns (BaseResponse) ;
 }
 
 message Student{
@@ -27,4 +29,11 @@ enum Gender{
 	ALL=0;
 	MALE=1;
 	FEMALE=2;
+}
+
+message BaseResponse {
+  bool Success = 1;
+  string Code = 2;
+  string Message = 3;
+  string DataString = 4;
 }

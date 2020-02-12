@@ -1,5 +1,6 @@
 using Grpc.Core;
 using Grpc.Core.Utils;
+using Newtonsoft.Json;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,7 +13,36 @@ namespace SchoolRpc
         {
         }
 
-        public override async Task GetMultiStudent(IAsyncStreamReader<StudentRequest> requestStream, IServerStreamWriter<Student> responseStream, ServerCallContext context)
+        public override Task<Student> GetStudent(StudentRequest request, ServerCallContext context)
+        {
+            return Task.FromResult<Student>(new Student()
+            {
+                Id = request.Id,
+                Gender = request.Gender,
+                Name = request.Name,
+                ResponseTime = GetDateTimeNowString()
+            });
+        }
+
+        public override Task<BaseResponse> GetStudentReturnBaseResponse(StudentRequest request, ServerCallContext context)
+        {
+            return Task.FromResult<BaseResponse>(
+
+                new BaseResponse()
+                {
+                    Success = true,
+                    Code = "00000",
+                    DataString = JsonConvert.SerializeObject(new Student()
+                    {
+                        Id = request.Id,
+                        Gender = request.Gender,
+                        Name = request.Name,
+                        ResponseTime = GetDateTimeNowString()
+                    })
+                });
+        }
+
+        public override async Task GetStudentList(IAsyncStreamReader<StudentRequest> requestStream, IServerStreamWriter<Student> responseStream, ServerCallContext context)
         {
             await foreach (var item in requestStream.ReadAllAsync())
                 await responseStream.WriteAsync(new Student() { Id = item.Id, ResponseTime = GetDateTimeNowString() });
@@ -26,7 +56,7 @@ namespace SchoolRpc
         /// <param name="responseStream"></param>
         /// <param name="context"></param>
         /// <returns></returns>
-        public override async Task GetMultiStudentCoreUtils(IAsyncStreamReader<StudentRequest> requestStream, IServerStreamWriter<Student> responseStream, ServerCallContext context)
+        public override async Task GetStudentListExtention(IAsyncStreamReader<StudentRequest> requestStream, IServerStreamWriter<Student> responseStream, ServerCallContext context)
         {
             var request = await requestStream.ToListAsync();
             var students = request.Select(x => new Student
@@ -39,13 +69,6 @@ namespace SchoolRpc
             await responseStream.WriteAllAsync<Student>(students);
         }
 
-        public override Task<Student> GetStudent(StudentRequest request, ServerCallContext context)
-        {
-            return Task.FromResult<Student>(new Student()
-            {
-                ResponseTime = GetDateTimeNowString()
-            });
-        }
         private string GetDateTimeNowString() => DateTime.Now.ToString("yyyy/MM/dd HH:mm:ss.fff");
     }
 }
